@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "AI agent for generating Swagger documentation for Express.js applications",
   "scripts": {
-    "generate": "tsx src/agents/swagger/agent.ts",
+    "generate": "tsx src/agents/swagger/cli.ts",
     "format": " prettier . --write"
   },
   "dependencies": {

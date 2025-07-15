@@ -9,12 +9,12 @@ async function runSwaggerDocAgent() {
       demandOption: true,
       description: "Path to the project directory",
     })
-    .option("routeDirectories", {
+    .option("routesDir", {
       type: "array",
       demandOption: true,
       description: "List of route directories",
     })
-    .option("controllerDirectories", {
+    .option("controllersDir", {
       type: "array",
       demandOption: true,
       description: "List of controller directories",
@@ -23,8 +23,8 @@ async function runSwaggerDocAgent() {
 
   await agent.run(
     argv.projectDir as string,
-    argv.routeDirectories as string[],
-    argv.controllerDirectories as string[],
+    argv.routesDir as string[],
+    argv.controllersDir as string[],
   );
 
   console.log("🎉 Documentation generation completed!");
