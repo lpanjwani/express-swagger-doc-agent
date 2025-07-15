@@ -4,14 +4,24 @@ export class RedisService {
   client: ReturnType<typeof createClient>;
 
   constructor() {
+    this.validateVariables();
     this.createClient();
     this.connect();
   }
 
-  createClient(): void {
+  private validateVariables() {
+    if (!process.env.REDIS_URL) {
+      throw new Error("REDIS_URL is not defined in environment variables");
+    }
+    if (!process.env.REDIS_PASSWORD) {
+      throw new Error("REDIS_PASSWORD is not defined in environment variables");
+    }
+  }
+
+  private createClient(): void {
     this.client = createClient({
-      url: process.env.REDIS_URL || "redis://localhost:6380",
-      password: process.env.REDIS_PASSWORD || "12345678",
+      url: process.env.REDIS_URL,
+      password: process.env.REDIS_PASSWORD,
     });
 
     this.client.on("error", (err) => console.log("Redis Client Error", err));
@@ -26,9 +36,11 @@ export class RedisService {
   async exists(key: string) {
     return this.client.exists(key);
   }
+
   async get(key: string) {
     return this.client.get(key);
   }
+
   async set(key: string, value: string) {
     return this.client.set(key, value);
   }
