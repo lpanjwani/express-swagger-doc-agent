@@ -44,17 +44,17 @@ npm run generate \
   --controllersDir <controller-dirs>
 ```
 
-### Format Code
-
-To format the codebase:
-
-```bash
-npm run format
-```
-
 ### Debugging
 
 Use the VS Code launch configuration to debug the Swagger Agent:
 
 1. Run `docker-compose up redis` to start Redis.
 2. Run the "Debug Swagger Agent" configuration from VS Code.
+
+### Format Code
+
+Prettier is used for code formatting. In order to use it, run the following command:
+
+```bash
+npm run format
+```
