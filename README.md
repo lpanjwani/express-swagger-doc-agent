@@ -40,8 +40,8 @@ Run the following command to generate Swagger documentation:
 ```bash
 npm run generate \
   -- --projectDir <path-to-project> \
-  --routeDirectories <route-dirs> \
-  --controllerDirectories <controller-dirs>
+  --routesDir <route-dirs> \
+  --controllersDir <controller-dirs>
 ```
 
 ### Format Code
