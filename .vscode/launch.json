@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Swagger Agent",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/agents/swagger/cli.ts",
+      "runtimeArgs": ["--inspect", "--import", "tsx"],
+      "outFiles": ["${workspaceFolder}/**/*.js"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "swagger-doc-agent",
+  "version": "1.0.0",
+  "description": "AI agent for generating Swagger documentation for Express.js applications",
+  "scripts": {
+    "generate": "tsx src/agents/swagger/agent.ts",
+    "format": " prettier . --write"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.62",
+    "@langchain/google-genai": "^0.2.14",
+    "@langchain/langgraph": "^0.3.8",
+    "acorn": "^8.15.0",
+    "acorn-walk": "^8.3.4",
+    "chalk": "^5.4.1",
+    "fs-extra": "^11.3.0",
+    "glob": "^11.0.3",
+    "ora": "^8.2.0",
+    "redis": "^5.6.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.31.0",
+    "jest": "^30.0.4",
+    "prettier": "3.6.2",
+    "tsx": "^4.20.3"
+  },
+  "keywords": [
+    "swagger",
+    "openapi",
+    "express",
+    "langgraph",
+    "gemini",
+    "ai-agent",
+    "documentation"
+  ],
+  "author": "Lavesh Panjwani"
+}

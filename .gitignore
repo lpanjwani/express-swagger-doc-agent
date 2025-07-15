@@ -1,0 +1,11 @@
+
+# Environment Variables
+.env
+
+# Node Modules
+node_modules/
+
+# Example Files
+api
+# LangGraph API
+.langgraph_api

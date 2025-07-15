@@ -1,0 +1,8 @@
+{
+  "node_version": "20",
+  "dependencies": ["."],
+  "graphs": {
+    "swagger-doc": "./src/agents/swagger/agent.ts:graph"
+  },
+  "env": ".env"
+}
