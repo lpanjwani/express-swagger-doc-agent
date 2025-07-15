@@ -12,11 +12,11 @@ import {
   LoggingService,
   LogLevel,
 } from "../../services/logging/logging.service";
-import { FilesService } from "../../services/files/files-service";
+import { FilesService } from "../../services/files/files.service";
 import { NodeNames } from "./enum/node-names.enum";
 import { StateAnnotation } from "./state/state-annotation";
 import { GenerativeAIService } from "../../services/genai/genai.service";
-import { GenAiPromptService } from "../../services/genai/prompt.service";
+import { PromptsService } from "../../services/genai/prompts.service";
 import { RouterEndpointContext } from "./interfaces/router-endpoint-content.interface";
 import { SwaggerDocumentedEndpoint } from "./interfaces/swagger-documented-endpoints.interface";
 
@@ -25,7 +25,7 @@ export class SwaggerDocAgent {
   private loggingService: LoggingService;
   private filesService: FilesService;
   private genAiService: GenerativeAIService;
-  private promptService: GenAiPromptService;
+  private promptService: PromptsService;
 
   workflow: any;
 
@@ -39,7 +39,7 @@ export class SwaggerDocAgent {
     this.astService = new JavascriptAstService();
     this.loggingService = new LoggingService();
     this.filesService = new FilesService();
-    this.promptService = new GenAiPromptService();
+    this.promptService = new PromptsService();
   }
 
   private handleError(error: Error, errorMessage: string): void {

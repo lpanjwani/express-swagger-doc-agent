@@ -1,6 +1,6 @@
 import { RouterEndpointContext } from "../../agents/swagger/interfaces/router-endpoint-content.interface";
 
-export class GenAiPromptService {
+export class PromptsService {
   buildRouteAnalysisPrompt(
     filePath: string,
     content: string,
