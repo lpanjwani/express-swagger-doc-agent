@@ -4,12 +4,12 @@ export class RedisService {
   client: ReturnType<typeof createClient>;
 
   constructor() {
-    this.validateVariables();
+    this.validateEnvironmentVariables();
     this.createClient();
     this.connect();
   }
 
-  private validateVariables() {
+  private validateEnvironmentVariables() {
     if (!process.env.REDIS_URL) {
       throw new Error("REDIS_URL is not defined in environment variables");
     }

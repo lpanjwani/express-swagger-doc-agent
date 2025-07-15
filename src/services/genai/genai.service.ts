@@ -8,12 +8,19 @@ export class GenerativeAIService {
   loggingService: LoggingService;
 
   constructor() {
+    this.validateEnvironmentVariables();
     this.llm = this.buildClient();
     this.redisService = new RedisService();
     this.loggingService = new LoggingService();
   }
 
-  buildClient(): ChatGoogleGenerativeAI {
+  private validateEnvironmentVariables(): void {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not defined in environment variables");
+    }
+  }
+
+  private buildClient(): ChatGoogleGenerativeAI {
     const client = new ChatGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY,
       model: "gemini-2.5-pro",
