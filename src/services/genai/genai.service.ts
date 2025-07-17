@@ -14,9 +14,9 @@ export class GenerativeAIService {
   }
 
   private getAndValidateApiKey(): string {
-    const apiKey = process.env.GITHUB_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error("GITHUB_API_KEY is not defined in environment variables");
+      throw new Error("OPENAI_API_KEY is not defined in environment variables");
     }
 
     return apiKey;
