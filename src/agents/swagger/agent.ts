@@ -162,7 +162,7 @@ export class SwaggerDocAgent {
     const parsedEndpoints = result.map((endpoint) => ({
       ...endpoint,
       filePath: filePath,
-      handler: endpoint.handler.split(" / ")[0],
+      handler: endpoint.handler ? endpoint.handler.split(" / ")[0] : "",
     }));
     return parsedEndpoints;
   }
