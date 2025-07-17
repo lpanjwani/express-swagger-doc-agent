@@ -39,7 +39,7 @@ Run the following command to generate Swagger documentation:
 
 ```bash
 npm run generate \
-  -- --projectDir <path-to-project> \
+  --projectDir <path-to-project> \
   --routesDir <route-dirs> \
   --controllersDir <controller-dirs>
 ```

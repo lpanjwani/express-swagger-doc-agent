@@ -1,12 +1,12 @@
-import { RouterEndpointContext } from '../../agents/swagger/interfaces/router-endpoint-content.interface';
+import { RouterEndpointContext } from "../../agents/swagger/interfaces/router-endpoint-content.interface";
 
 export class PromptsService {
-	buildRouteAnalysisPrompt(
-		filePath: string,
-		content: string,
-		rootRouterFilesContent: string
-	): string {
-		return `
+  buildRouteAnalysisPrompt(
+    filePath: string,
+    content: string,
+    rootRouterFilesContent: string,
+  ): string {
+    return `
       Analyze this Express.js route file and extract all endpoints with their details:
 
       Return a JSON array of endpoints with the following structure:
@@ -39,10 +39,10 @@ export class PromptsService {
       ${content}
       Router Root File Content: ${rootRouterFilesContent}
     `;
-	}
+  }
 
-	buildSwaggerPrompt(endpoint: RouterEndpointContext): string {
-		return `
+  buildSwaggerPrompt(endpoint: RouterEndpointContext): string {
+    return `
       Generate a comprehensive Swagger/OpenAPI JSDoc comment.
 
       Requirements:
@@ -95,7 +95,7 @@ export class PromptsService {
       - Parameters: ${JSON.stringify(endpoint.parameters || [])} (Although there could be more parameters in the controller)
 
       Function Context:
-      ${endpoint.controllerContent || 'No controller content available.'}
+      ${endpoint.controllerContent || "No controller content available."}
     `;
-	}
+  }
 }
