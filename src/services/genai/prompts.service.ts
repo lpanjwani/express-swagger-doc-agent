@@ -1,10 +1,30 @@
 import { RouterEndpointContext } from "../../agents/swagger/interfaces/router-endpoint-content.interface";
 
 export class PromptsService {
+  buildRouterContextExtractionPrompt(content: string) {
+    return `
+      Analyze the provided JavaScript code and extract the API subroutes along with their corresponding file paths.  Return a JSON array of base URLs with the following structure:
+      {
+        [ "routerPath": "[routerFilePath]",
+          "apiPaths": [
+            "[apiPath1]",
+            "[apiPath2]"
+        ]
+      }
+
+      Pay Attention To:
+      - The file paths should be relative to the project root (without ./ prefix).
+      - The API paths should be the full path including the base URL.
+      - Do not include any code blocks or markdown formatting.
+
+      File Content: ${content}
+    `;
+  }
+
   buildRouteAnalysisPrompt(
     filePath: string,
     content: string,
-    rootRouterFilesContent: string,
+    routerContext: string,
   ): string {
     return `
       Analyze this Express.js route file and extract all endpoints with their details:
@@ -13,7 +33,8 @@ export class PromptsService {
       [
         {
           "method": "GET|POST|PUT|DELETE|PATCH",
-          "path": "/api/v1.5/example/:id",
+          "path": "example/:id",
+          "fullPath": "/api/v1.5/example/:id",
           "handler": "controllerFunction",
           "parameters": [
             {
@@ -34,10 +55,10 @@ export class PromptsService {
       - Root-level routes (e.g., /api/v1.5/ or /api/callback/)
       - Do not include any code blocks or markdown formatting.
 
+      Base URL: ${routerContext || "No base URL provided."}
       File: ${filePath}
       Content:
       ${content}
-      Router Root File Content: ${rootRouterFilesContent}
     `;
   }
 
@@ -54,15 +75,15 @@ export class PromptsService {
       - Return the JSDoc comment as a string without any additional text.
       - Do not include any code blocks or markdown formatting.
       - If there is any user authentication requirement (req.session.user), add security: - bearerAuth: []
+      - Always include the full path in the JSDoc comment, even if it is a subroute.
 
       Format:
       /**
        * @swagger
-       * ${endpoint.path}:
+       * ${endpoint.fullPath}:
        *   ${endpoint.method.toLowerCase()}:
        *     tags:
-       *       - [File Name]
-       *       - [Controller Name]
+       *       - [Controller Name (without Controller suffix and spacing between words)]
        *     summary: [Brief description]
        *     description: [Detailed description]
        *     parameters:
@@ -91,7 +112,7 @@ export class PromptsService {
 
       Endpoint Details:
       - Method: ${endpoint.method}
-      - Path: ${endpoint.path}
+      - Path: ${endpoint.fullPath}
       - Handler: ${endpoint.handler}
       - Parameters: ${JSON.stringify(endpoint.parameters || [])} (Although there could be more parameters in the controller)
 

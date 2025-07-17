@@ -57,7 +57,8 @@ Run the following command to generate Swagger documentation:
 
 ```bash
 npm run generate \
-  --modulesDir <module-dirs>
+  --modulesDir <module-dirs> \
+  --routerContextFiles <router-context-files>
 ```
 
 ### Debugging

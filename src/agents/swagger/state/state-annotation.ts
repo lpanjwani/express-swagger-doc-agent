@@ -2,10 +2,19 @@ import { Annotation } from "@langchain/langgraph";
 import { ClassMethod } from "../../../services/javascript-ast/javascript-ast-service";
 import { RouterEndpointContext } from "../interfaces/router-endpoint-content.interface";
 import { SwaggerDocumentedEndpoint } from "../interfaces/swagger-documented-endpoints.interface";
+import { RouterBaseUrls } from "../interfaces/router-base-urls.interface";
 
 export const StateAnnotation = Annotation.Root({
   moduleDirectories: Annotation({
     reducer: (x: string[], y: string[]) => y,
+    default: () => [],
+  }),
+  routerContentFiles: Annotation({
+    reducer: (x: string[], y: string[]) => y,
+    default: () => [],
+  }),
+  routerBaseUrls: Annotation({
+    reducer: (x: RouterBaseUrls[], y: RouterBaseUrls[]) => y,
     default: () => [],
   }),
   routeFiles: Annotation({

@@ -73,16 +73,16 @@ export class JavascriptAstService {
   }
 
   getRouteDefinitionLineNumberByContent(
+    endpoint: { path: string; method: string },
     fileContents: string,
-    endpointPath: string,
   ): number {
     const ast = this.getAst(fileContents);
-    return this.findRouteDefinitionLineNumber(ast, endpointPath);
+    return this.findRouteDefinitionLineNumber(endpoint, ast);
   }
 
   private findRouteDefinitionLineNumber(
+    endpoint: { path: string; method: string },
     ast: acorn.Program,
-    endpointPath: string,
   ): number {
     let lineNumber = -1;
 
@@ -93,11 +93,14 @@ export class JavascriptAstService {
           node.expression.callee.type === "MemberExpression" &&
           node.expression.arguments.length > 0
         ) {
+          const callee = node.expression.callee;
           const firstArgument = node.expression.arguments[0];
 
           if (
+            callee.property.type === "Identifier" &&
+            callee.property.name === endpoint.method.toLowerCase() &&
             firstArgument.type === "Literal" &&
-            firstArgument.value === endpointPath
+            firstArgument.value === endpoint.path
           ) {
             if (node.loc) {
               lineNumber = node.loc.start.line;

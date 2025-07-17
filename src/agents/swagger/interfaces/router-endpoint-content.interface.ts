@@ -1,6 +1,7 @@
 export interface RouterEndpointContext {
   method: string;
   path: string;
+  fullPath: string;
   handler: string;
   parameters: RouterEndointParameters[];
   filePath: string;

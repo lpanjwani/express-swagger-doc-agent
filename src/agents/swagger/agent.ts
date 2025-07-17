@@ -19,6 +19,7 @@ import { GenerativeAIService } from "../../services/genai/genai.service";
 import { PromptsService } from "../../services/genai/prompts.service";
 import { RouterEndpointContext } from "./interfaces/router-endpoint-content.interface";
 import { SwaggerDocumentedEndpoint } from "./interfaces/swagger-documented-endpoints.interface";
+import { RouterBaseUrls } from "./interfaces/router-base-urls.interface";
 
 export class SwaggerDocAgent {
   private astService: JavascriptAstService;
@@ -52,6 +53,10 @@ export class SwaggerDocAgent {
   private createWorkflow() {
     this.workflow = new StateGraph(StateAnnotation)
       .addNode(NodeNames.SCAN_PROJECT, this.scanProject.bind(this))
+      .addNode(
+        NodeNames.EXTRACT_ROUTER_CONTEXTS,
+        this.extractRouterContexts.bind(this),
+      )
       .addNode(NodeNames.ANALYZE_ROUTES, this.analyzeRoutes.bind(this))
       .addNode(
         NodeNames.ANALYZE_CONTROLLERS,
@@ -68,7 +73,8 @@ export class SwaggerDocAgent {
         this.updateRoutersWithDocumentation.bind(this),
       )
       .addEdge(START, NodeNames.SCAN_PROJECT)
-      .addEdge(NodeNames.SCAN_PROJECT, NodeNames.ANALYZE_ROUTES)
+      .addEdge(NodeNames.SCAN_PROJECT, NodeNames.EXTRACT_ROUTER_CONTEXTS)
+      .addEdge(NodeNames.EXTRACT_ROUTER_CONTEXTS, NodeNames.ANALYZE_ROUTES)
       .addEdge(NodeNames.ANALYZE_ROUTES, NodeNames.ANALYZE_CONTROLLERS)
       .addEdge(
         NodeNames.ANALYZE_CONTROLLERS,
@@ -107,23 +113,50 @@ export class SwaggerDocAgent {
     }
   }
 
-  async analyzeRoutes(state: typeof StateAnnotation.State) {
-    const { matchingFiles: rootRouterFiles, nonMatchingFiles: nonRouterFiles } =
-      this.filesService.groupFileNamesByKeyword(state.routeFiles, "index");
+  async extractRouterContexts(state: typeof StateAnnotation.State) {
+    const routerBaseUrls: RouterBaseUrls[] = [];
 
-    const rootRouterFilesContent =
-      await this.filesService.readFiles(rootRouterFiles);
-
-    const routerEndpoints: RouterEndpointContext[] = [];
-
-    for (const routeFile of nonRouterFiles) {
+    for (const routeFile of state.routerContentFiles) {
       try {
         const content = await this.filesService.readFile(routeFile);
+        const prompt =
+          this.promptService.buildRouterContextExtractionPrompt(content);
+        const result = await this.genAiService.invoke<RouterBaseUrls[]>(
+          prompt,
+          {
+            cacheKey: routeFile,
+            isJsonResponse: true,
+          },
+        );
+
+        routerBaseUrls.push(...result);
+      } catch (error) {
+        this.loggingService.log(
+          `⚠️ Could not read route file ${routeFile}: ${error.message}`,
+          LogLevel.WARNING,
+        );
+      }
+    }
+
+    return { ...state, routerBaseUrls };
+  }
+
+  async analyzeRoutes(state: typeof StateAnnotation.State) {
+    const routerEndpoints: RouterEndpointContext[] = [];
+
+    for (const routeFile of state.routeFiles) {
+      try {
+        const content = await this.filesService.readFile(routeFile);
+
+        const baseUrlContext = state.routerBaseUrls
+          .filter((url) => routeFile.includes(url.routerPath))
+          .map((item) => item.apiPaths.join(", "))
+          .join(", ");
 
         const discoveredRouteEndpoints = await this.extractEndpoints(
           content,
           routeFile,
-          rootRouterFilesContent.join("\n"),
+          baseUrlContext,
         );
 
         routerEndpoints.push(...discoveredRouteEndpoints);
@@ -166,6 +199,8 @@ export class SwaggerDocAgent {
   }
 
   async analyzeControllers(state: typeof StateAnnotation.State) {
+    const controllerFunctions: ClassMethod[] = [];
+
     for (const controllerFile of state.controllerFiles) {
       try {
         const content = await this.filesService.readFile(controllerFile);
@@ -173,7 +208,7 @@ export class SwaggerDocAgent {
         const functions: ClassMethod[] =
           this.astService.getClassMethods(content);
 
-        return { ...state, controllerFunctions: functions };
+        controllerFunctions.push(...functions);
       } catch (error) {
         this.loggingService.log(
           `⚠️ Could not analyze controller file ${controllerFile}: ${error.message}`,
@@ -181,6 +216,8 @@ export class SwaggerDocAgent {
         );
       }
     }
+
+    return { ...state, controllerFunctions };
   }
 
   async mergeRoutesWithController(state: typeof StateAnnotation.State) {
@@ -214,7 +251,12 @@ export class SwaggerDocAgent {
 
     for (const endpoint of state.routerEndpoints) {
       try {
-        const swaggerDoc = await this.generateSwaggerForEndpoint(endpoint);
+        const prompt = this.promptService.buildSwaggerPrompt(endpoint);
+
+        const swaggerDoc = await this.genAiService.invoke<string>(prompt, {
+          cacheKey: `${endpoint.method} ${endpoint.fullPath}`,
+          isJsonResponse: false,
+        });
 
         swaggerEndpoints.push({
           ...endpoint,
@@ -232,17 +274,6 @@ export class SwaggerDocAgent {
       ...state,
       swaggerEndpoints,
     };
-  }
-
-  private async generateSwaggerForEndpoint(
-    endpoint: RouterEndpointContext,
-  ): Promise<string> {
-    const prompt = this.promptService.buildSwaggerPrompt(endpoint);
-
-    return this.genAiService.invoke<string>(prompt, {
-      cacheKey: endpoint.path,
-      isJsonResponse: false,
-    });
   }
 
   async validateOutput(state: typeof StateAnnotation.State) {
@@ -271,8 +302,8 @@ export class SwaggerDocAgent {
       const fileContent = await this.filesService.readFile(filePath);
 
       const lineNumber = this.astService.getRouteDefinitionLineNumberByContent(
+        swaggerDoc,
         fileContent,
-        path,
       );
 
       if (lineNumber === -1) {
@@ -289,9 +320,10 @@ export class SwaggerDocAgent {
     return state;
   }
 
-  async run(moduleDirectories: string[]) {
+  async run(moduleDirectories: string[], routerContentFiles: string[] = []) {
     const result = await this.graph.invoke({
       moduleDirectories,
+      routerContentFiles,
       routeFiles: [],
       routerEndpoints: [],
       controllerFiles: [],

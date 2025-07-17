@@ -112,7 +112,10 @@ export class GenerativeAIService {
       isJsonResponse = false,
     }: { cacheKey: string; isJsonResponse?: boolean },
   ): Promise<T> {
-    this.loggingService.log(`🤖 Calling LLM for ${cacheKey}`, LogLevel.LLM);
+    this.loggingService.log(
+      `🤖 Calling LLM for ${cacheKey}: ${prompt}`,
+      LogLevel.LLM,
+    );
 
     if (await this.checkForCachedResponse(cacheKey)) {
       return await this.getCachedResponse<T>(cacheKey, isJsonResponse);

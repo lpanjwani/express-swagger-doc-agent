@@ -28,17 +28,6 @@ export class FilesService {
     return Promise.all(filePaths.map((filePath) => this.readFile(filePath)));
   }
 
-  groupFileNamesByKeyword(
-    routeFiles: string[],
-    keyword: string,
-  ): { matchingFiles: string[]; nonMatchingFiles: string[] } {
-    const matchingFiles = routeFiles.filter((file) => file.includes(keyword));
-    const nonMatchingFiles = routeFiles.filter(
-      (file) => !file.includes(keyword),
-    );
-    return { matchingFiles, nonMatchingFiles };
-  }
-
   async addContentsToFile(
     filePath: string,
     newContents: string,
