@@ -93,12 +93,10 @@ export class SwaggerDocAgent {
   async scanProject(state: typeof StateAnnotation.State) {
     try {
       const routeFiles = await this.filesService.findFiles(
-        state.projectPath,
-        state.routerDirectories,
+        state.moduleDirectories.map((dir) => `${dir}/routes`),
       );
       const controllerFiles = await this.filesService.findFiles(
-        state.projectPath,
-        state.controllerDirectories,
+        state.moduleDirectories.map((dir) => `${dir}/controllers`),
       );
 
       const result = { ...state, routeFiles, controllerFiles };
@@ -291,17 +289,11 @@ export class SwaggerDocAgent {
     return state;
   }
 
-  async run(
-    projectPath: string,
-    routerDirectories: string[],
-    controllerDirectories: string[],
-  ) {
+  async run(moduleDirectories: string[]) {
     const result = await this.graph.invoke({
-      projectPath,
-      routerDirectories,
+      moduleDirectories,
       routeFiles: [],
       routerEndpoints: [],
-      controllerDirectories,
       controllerFiles: [],
       controllerFunctions: [],
       swaggerEndpoints: [],

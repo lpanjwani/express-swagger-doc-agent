@@ -4,28 +4,14 @@ import { hideBin } from "yargs/helpers";
 
 async function runSwaggerDocAgent() {
   const argv = await yargs(hideBin(process.argv))
-    .option("projectDir", {
-      type: "string",
-      demandOption: true,
-      description: "Path to the project directory",
-    })
-    .option("routesDir", {
+    .option("modulesDir", {
       type: "array",
       demandOption: true,
-      description: "List of route directories",
-    })
-    .option("controllersDir", {
-      type: "array",
-      demandOption: true,
-      description: "List of controller directories",
+      description: "List of modules directories",
     })
     .help().argv;
 
-  await agent.run(
-    argv.projectDir as string,
-    argv.routesDir as string[],
-    argv.controllersDir as string[],
-  );
+  await agent.run(argv.moduleDir as string[]);
 
   console.log("🎉 Documentation generation completed!");
 

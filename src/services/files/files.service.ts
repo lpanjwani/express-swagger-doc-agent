@@ -4,14 +4,12 @@ import { readFile, writeFile } from "fs/promises";
 
 export class FilesService {
   async findFiles(
-    basePath: string,
     directories: string[],
     extensions: string[] = [".js", ".ts"],
   ) {
     let files: string[] = [];
     for (const dir of directories) {
-      const absDir = path.join(basePath, dir);
-      const patterns = extensions.map((ext) => path.join(absDir, `**/*${ext}`));
+      const patterns = extensions.map((ext) => path.join(dir, `**/*${ext}`));
       try {
         for (const pattern of patterns) {
           const matchedFiles = glob.sync(pattern, { nodir: true });

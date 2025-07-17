@@ -4,11 +4,7 @@ import { RouterEndpointContext } from "../interfaces/router-endpoint-content.int
 import { SwaggerDocumentedEndpoint } from "../interfaces/swagger-documented-endpoints.interface";
 
 export const StateAnnotation = Annotation.Root({
-  projectPath: Annotation({
-    reducer: (x: string, y: string) => y,
-    default: () => "",
-  }),
-  routerDirectories: Annotation({
+  moduleDirectories: Annotation({
     reducer: (x: string[], y: string[]) => y,
     default: () => [],
   }),
@@ -18,10 +14,6 @@ export const StateAnnotation = Annotation.Root({
   }),
   routerEndpoints: Annotation({
     reducer: (x: RouterEndpointContext[], y: RouterEndpointContext[]) => y,
-    default: () => [],
-  }),
-  controllerDirectories: Annotation({
-    reducer: (x: string[], y: string[]) => y,
     default: () => [],
   }),
   controllerFiles: Annotation({

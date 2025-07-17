@@ -31,6 +31,24 @@ The Swagger Doc Agent is an AI-powered tool designed to generate Swagger documen
    - Create a `.env` file based on `.env.sample`.
    - Add your Gemini API key and Redis credentials.
 
+# Assumptions
+
+1. Typically, Express.js applications have a structure where routes and controllers are organized in a modular way. The agent assumes that the project follows a common pattern where:
+
+   ```
+   module-dir/
+   ├── routes
+   │   ├── index.ts
+   │   ├── userRoutes.ts
+   │   └── productRoutes.ts
+   ├── controllers
+   │   ├── userController.ts
+   │   └── productController.ts
+   └── services
+      ├── userService.ts
+      └── productService.ts
+   ```
+
 ## Usage
 
 ### Generate Documentation
@@ -39,9 +57,7 @@ Run the following command to generate Swagger documentation:
 
 ```bash
 npm run generate \
-  --projectDir <path-to-project> \
-  --routesDir <route-dirs> \
-  --controllersDir <controller-dirs>
+  --modulesDir <module-dirs>
 ```
 
 ### Debugging
