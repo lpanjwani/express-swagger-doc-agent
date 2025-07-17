@@ -2,13 +2,15 @@ export interface RouterEndpointContext {
   method: string;
   path: string;
   fullPath: string;
-  handler: string;
-  parameters: RouterEndointParameters[];
+  handlers: string[];
+  controllerContents: string[];
+  parameters: RouterEndpointParameters[];
   filePath: string;
-  controllerContent?: string;
+  middlewares?: string[];
+  middlewareContents: string[];
 }
 
-export interface RouterEndointParameters {
+export interface RouterEndpointParameters {
   name: string;
   in: "path" | "query" | "header" | "body";
   type: string;

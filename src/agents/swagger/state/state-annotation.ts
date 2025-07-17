@@ -33,6 +33,14 @@ export const StateAnnotation = Annotation.Root({
     reducer: (x: ClassMethod[], y: ClassMethod[]) => y,
     default: () => [],
   }),
+  middlewareFiles: Annotation({
+    reducer: (x: string[], y: string[]) => y,
+    default: () => [],
+  }),
+  middlewareFunctions: Annotation({
+    reducer: (x: ClassMethod[], y: ClassMethod[]) => y,
+    default: () => [],
+  }),
   swaggerEndpoints: Annotation({
     reducer: (x: SwaggerDocumentedEndpoint[], y: SwaggerDocumentedEndpoint[]) =>
       y,

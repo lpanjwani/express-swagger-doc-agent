@@ -7,5 +7,12 @@ node_modules/
 
 # Example Files
 api
+
 # LangGraph API
 .langgraph_api
+
+# VSCode
+.vscode/launch.json
+
+# Scripts
+scripts/

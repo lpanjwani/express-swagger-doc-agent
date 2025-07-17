@@ -1,6 +1,7 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { RedisService } from "../redis/redis-service.service";
-import { LoggingService, LogLevel } from "../logging/logging.service";
+import { LoggingService } from "../logging/logging.service";
+import { MessageFieldWithRole } from "@langchain/core/messages";
 
 export class GenerativeAIService {
   llm: ChatOpenAI;
@@ -10,7 +11,7 @@ export class GenerativeAIService {
   constructor() {
     this.llm = this.buildClient();
     this.redisService = new RedisService();
-    this.loggingService = new LoggingService();
+    this.loggingService = new LoggingService(this.constructor.name);
   }
 
   private getAndValidateApiKey(): string {
@@ -86,9 +87,8 @@ export class GenerativeAIService {
   ): Promise<T> {
     const result = (await this.redisService.get(cacheKey)) as string;
 
-    this.loggingService.log(
-      `✅ Cache hit for ${cacheKey}, returning cached response`,
-      LogLevel.CACHE,
+    this.loggingService.debug(
+      `Cache hit for ${cacheKey}, returning cached response`,
     );
 
     return isJsonResponse ? (JSON.parse(result) as T) : (result as T);
@@ -99,44 +99,33 @@ export class GenerativeAIService {
     response: string,
   ): Promise<void> {
     await this.redisService.set(cacheKey, response);
-    this.loggingService.log(
-      `✅ Response cached for ${cacheKey}`,
-      LogLevel.CACHE,
-    );
+    this.loggingService.debug(`Response cached for ${cacheKey}`);
   }
 
   async invoke<T>(
-    prompt: string,
+    input: MessageFieldWithRole[],
     {
       cacheKey,
       isJsonResponse = false,
     }: { cacheKey: string; isJsonResponse?: boolean },
   ): Promise<T> {
-    this.loggingService.log(
-      `🤖 Calling LLM for ${cacheKey}: ${prompt}`,
-      LogLevel.LLM,
-    );
+    this.loggingService.info(`Calling LLM for ${cacheKey}`);
 
     if (await this.checkForCachedResponse(cacheKey)) {
       return await this.getCachedResponse<T>(cacheKey, isJsonResponse);
     }
 
     try {
-      const response = await this.llm.invoke([
-        { role: "user", content: prompt },
-      ]);
+      const response = await this.llm.invoke(input);
       const content = response.content as string;
 
-      this.loggingService.log(
-        `✅ LLM response received for ${cacheKey}: ${content}`,
-        LogLevel.SUCCESS,
-      );
+      this.loggingService.success(`LLM response received for ${cacheKey}`);
 
       await this.cacheResponse(cacheKey, content);
 
       return isJsonResponse ? (JSON.parse(content) as T) : (content as T);
-    } catch (error) {
-      console.error("Error invoking LLM:", error);
+    } catch (error: any) {
+      this.loggingService.error(`Error invoking LLM: ${error.message}`);
       throw new Error("Failed to invoke LLM");
     }
   }

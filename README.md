@@ -44,6 +44,9 @@ The Swagger Doc Agent is an AI-powered tool designed to generate Swagger documen
    ├── controllers
    │   ├── userController.ts
    │   └── productController.ts
+   ├── middlewares
+   │   ├── authMiddleware.ts
+   │   └── errorMiddleware.ts
    └── services
       ├── userService.ts
       └── productService.ts
