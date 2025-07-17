@@ -1,30 +1,35 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatOpenAI } from "@langchain/openai";
 import { RedisService } from "../redis/redis-service.service";
 import { LoggingService, LogLevel } from "../logging/logging.service";
 
 export class GenerativeAIService {
-  llm: ChatGoogleGenerativeAI;
+  llm: ChatOpenAI;
   redisService: RedisService;
   loggingService: LoggingService;
 
   constructor() {
-    this.validateEnvironmentVariables();
     this.llm = this.buildClient();
     this.redisService = new RedisService();
     this.loggingService = new LoggingService();
   }
 
-  private validateEnvironmentVariables(): void {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is not defined in environment variables");
+  private getAndValidateApiKey(): string {
+    const apiKey = process.env.GITHUB_API_KEY;
+    if (!apiKey) {
+      throw new Error("GITHUB_API_KEY is not defined in environment variables");
     }
+
+    return apiKey;
   }
 
-  private buildClient(): ChatGoogleGenerativeAI {
-    const client = new ChatGoogleGenerativeAI({
-      apiKey: process.env.GEMINI_API_KEY,
-      model: "gemini-2.5-pro",
-      temperature: 0.1,
+  private buildClient(): ChatOpenAI {
+    const client = new ChatOpenAI({
+      apiKey: this.getAndValidateApiKey(),
+      model: "openai/gpt-4o",
+      temperature: 0,
+      configuration: {
+        baseURL: "https://models.github.ai/inference",
+      },
     });
 
     return client;
